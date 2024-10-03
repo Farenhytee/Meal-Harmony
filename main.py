@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.linear_model import LinearRegression
-from sklearn.neighbors import KNeighborsClassifier 
 
 # Load data
 df = pd.read_csv("Food survey.csv")
@@ -26,15 +25,13 @@ meal_time_columns = inventory_df.columns[-4:].tolist()
 ingredients = inventory_df[ingredient_columns].values
 meal_times = inventory_df[meal_time_columns].values
 
-X = pd.concat([pd.DataFrame(ingredients), pd.DataFrame(meal_times)], axis=1)
-y = inventory_df['Item_id']
-
-model = KNeighborsClassifier(n_neighbors=5)
-model.fit(X, y)
+# Train a linear regression model to predict ratings for new users
+x = np.array(df)
+y = np.arange(len(df)).reshape(-1, 1)
+linear_model = LinearRegression().fit(y, x)
 
 # Dictionary to track recently selected dishes for each user
 recently_selected = {}
-
 user_selected_ingredients = []  
 user_meal_time = []
 
@@ -115,11 +112,6 @@ def update_data(user_id, selected_dish, neighborhood_size=5):
     df.loc[user_id] = dishes.loc[user_id]
     df.to_csv("Food survey.csv")
 
-
-# Train a linear regression model to predict ratings for new users
-x = np.array(df)
-y = np.arange(len(df)).reshape(-1, 1)
-linear_model = LinearRegression().fit(y, x)
 
 
 def add_user(user_id, name):
@@ -283,8 +275,18 @@ def interact(user_id):
             recommendations = get_recommendations(user_id)
 
             print("We recommend the following dishes:")
-            for i, _ in recommendations:
-                print(f"{i}: {dish_names[i]}")
+
+            #In case when no recommendations are able to be generated, we display all the dishes.
+            if len(recommendations)==0:
+                print("Oops! Could not recommend based on the ingredients mentioned. You can select the dish from all the choices.")
+                for i in range(0, len(dish_names), 4):
+                            row = dish_names[i:i+4]
+                            print("\t\t".join([f"{i+j+1}: {dish}" for j, dish in enumerate(row)]))
+
+
+            else:
+                for i, _ in recommendations:
+                    print(f"{i}: {dish_names[i]}")
 
             selection = int(input("\nEnter the number of your selected dish: "))
             update_data(user_id, selection)
