@@ -6,12 +6,19 @@
     android:layout_height="match_parent"
     tools:context=".EnterIngredients">
 
-    <ListView
-        android:id="@+id/listview_ingredients"
-        android:layout_width="396dp"
-        android:layout_height="646dp"
+    <ScrollView
+        android:id="@+id/sv_scrollIngre"
+        android:layout_width="390dp"
+        android:layout_height="687dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_ingreList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </ScrollView>
+
 </androidx.constraintlayout.widget.ConstraintLayout>
