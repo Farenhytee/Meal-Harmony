@@ -29,9 +29,6 @@ meal_times = inventory_df[meal_time_columns].values
 X = pd.concat([pd.DataFrame(ingredients), pd.DataFrame(meal_times)], axis=1)
 y = inventory_df['Item_id']
 
-model = KNeighborsClassifier(n_neighbors=5)
-model.fit(X, y)
-
 # Dictionary to track recently selected dishes for each user
 recently_selected = {}
 
@@ -114,34 +111,6 @@ def update_data(user_id, selected_dish, neighborhood_size=5):
     # Save the updated data to CSV
     df.loc[user_id] = dishes.loc[user_id]
     df.to_csv("Food survey.csv")
-
-
-# Train a linear regression model to predict ratings for new users
-x = np.array(df)
-y = np.arange(len(df)).reshape(-1, 1)
-linear_model = LinearRegression().fit(y, x)
-
-
-def add_user(user_id, name):
-    global dishes
-
-    new_data = linear_model.predict([[user_id]])
-    new_ratings = np.clip(new_data[0], 1, 5)
-    new_ratings = np.round(new_ratings, 1)
-
-    new_user_data = pd.Series(new_ratings, index=dishes.columns, name=user_id)
-    dishes = pd.concat([dishes, new_user_data.to_frame().T])
-
-    df.loc[user_id] = new_ratings
-    df.to_csv("Food survey.csv")
-
-    users[user_id] = name
-
-    print(f"Account created successfully! Welcome, {name}.\n")
-
-
-def validate_user(user_id):
-    return user_id in dishes.index
 
 
 def get_recommendations(user_id, num_recommendations=5):
@@ -305,13 +274,3 @@ def interact(user_id):
                 print(dish_names[dish_id])
         else:
             print("Invalid choice. Please try again.")
-
-while True:
-    user_id = int(input("Enter your ID: "))
-    if not validate_user(user_id):
-        print("User doesn't exist, creating account...")
-        name = input("\nPlease enter your username: ")
-        add_user(user_id, name)
-    else:
-        interact(user_id)
-        break

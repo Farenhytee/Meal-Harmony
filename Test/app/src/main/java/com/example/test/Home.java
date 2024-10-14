@@ -8,10 +8,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
-import com.chaquo.python.PyObject;
-import com.chaquo.python.Python;
-import com.chaquo.python.android.AndroidPlatform;
-
 public class Home extends AppCompatActivity {
 
     private static final String PREFS_NAME = "user";
