@@ -1,16 +1,11 @@
 plugins {
     id("com.android.application")
-    id("com.chaquo.python")
 }
 
 android {
     namespace = "com.example.test"
     compileSdk = 34
 
-    flavorDimensions += "pyVersion"
-    productFlavors {
-        create("py310") { dimension = "pyVersion" }
-    }
 
     defaultConfig {
         applicationId = "com.example.test"
@@ -21,17 +16,8 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        ndk {
-            // On Apple silicon, you can omit x86_64.
-            abiFilters += listOf("arm64-v8a", "x86_64")
-        }
     }
 
-    sourceSets {
-        getByName("main") {
-            assets.srcDirs("src/main/python")
-        }
-    }
 
     buildTypes {
         release {
@@ -55,25 +41,4 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.2.1")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.6.1")
-}
-chaquopy {
-    defaultConfig {
-        buildPython("C:/Users/mail/AppData/Local/Programs/Python/Python310/python.exe")
-        version = "3.10"
-
-        pip {
-            // A requirement specifier, with or without a version number:
-            install("numpy")
-            install("pandas")
-            install("scikit-learn")
-        }
-    }
-
-    productFlavors {
-        getByName("py310") { version = "3.10" }
-    }
-
-    sourceSets {
-
-    }
 }

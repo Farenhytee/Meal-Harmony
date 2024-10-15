@@ -1,7 +1,6 @@
 import numpy as np
 import pandas as pd
 from sklearn.metrics.pairwise import cosine_similarity
-from sklearn.linear_model import LinearRegression
 
 # Simulate data for user 35
 user_id = 35
