@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="mt-5">
+    <h3 class="text-center mb-4">Recommended Dishes for You</h3>
+
+    <div class="row">
+        {% for dish_id, dish_name in recommendations %}
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ dish_name }}</h5>
+                        <p class="card-text">A delicious option based on your selected ingredients and meal preferences.</p>
+                        <a href="{{ url_for('select_dish', user_id=user_id, dish_id=dish_id) }}" class="btn btn-primary">Select</a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="text-center mt-4">
+        <a href="{{ url_for('interact', user_id=user_id) }}" class="btn btn-secondary">Go Back to Ingredients</a>
+    </div>
+</div>
+{% endblock %}
