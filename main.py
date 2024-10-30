@@ -68,9 +68,25 @@ def select_neighborhood(similarity_matrix, item_id, neighborhood_size):
     return neighborhood
 
 
+#! Function to get the user's rating for the recommendations
+def get_recommendation_rating():
+    while True:
+        try:
+            rating = int(input("\nRate the recommendation quality (1 to 5): "))
+            if 1 <= rating <= 5:
+                print(f"Thank you! You rated the recommendation as: {rating}/5.")
+                return rating
+            else:
+                print("Please enter a rating between 1 and 5.")
+        except ValueError:
+            print("Invalid input. Please enter an integer between 1 and 5.")
+
+
 #! Function to update the data based on the user's selection and adjust the ratings of similar dishes
-def update_data(user_id, selected_dish, neighborhood_size=5):
+def update_data(user_id, selected_dish, recommendation_rating, neighborhood_size=5):
     hood = select_neighborhood(dish_similarity, selected_dish, neighborhood_size)
+
+    rating_adjustment = 0.1 * (recommendation_rating - 3)
 
     for i in hood:
         current_rating = dishes.loc[user_id, dish_names[i]]
@@ -78,14 +94,13 @@ def update_data(user_id, selected_dish, neighborhood_size=5):
             adjustment = 0.1
         else:
             adjustment = -0.2 if current_rating > 1.2 else 0
-        dish_similarity[selected_dish][i] += adjustment
 
-        dish_name = dish_names[i]
+        final_adjustment = rating_adjustment + adjustment
 
-        new_rating = np.clip(dishes.loc[user_id, dish_name] + adjustment, 1, 5)
+        new_rating = np.clip(current_rating + final_adjustment, 1, 5)
         new_rating = round(new_rating, 1)
         # print(f"User {user_id}: Dish '{dish_names[i]}' - Previous Rating: {current_rating}, Updated Rating: {new_rating}")
-        dishes.loc[user_id, dish_name] = new_rating
+        dishes.loc[user_id, dish_names[i]] = new_rating
 
     #? Track the recently selected dish
     if user_id not in recently_selected:
@@ -183,6 +198,21 @@ def retry_cosine_similarity(user_id, recommendations):
     return retry_recommendations if retry_recommendations else []
 
 
+#! Function to prompt the user to select a dish from the recommended list
+def select_from_recommendations(user_id, recommendations):
+    print("\nPlease select a dish from the recommended list:")
+    for idx, (dish_id, _) in enumerate(recommendations):
+        print(f"{idx + 1}: {dish_names[dish_id]}")
+    choice = int(input("\nEnter the number of your selected dish: ")) - 1
+
+    if 0 <= choice < len(recommendations):
+        selected_dish = recommendations[choice][0]
+        print(f"You selected: {dish_names[selected_dish]}")
+        return selected_dish
+    else:
+        print("Invalid selection.")
+        return None
+
 def interact(user_id):
     global user_selected_ingredients, user_meal_time
     print(f"Welcome, {users[user_id]}")
@@ -203,8 +233,7 @@ def interact(user_id):
     while True:
         print("\nWhat would you like to do?")
         print("1: Get Recommendations")
-        print("2: Select a Dish")
-        print("3: View Recently Selected Dishes")
+        print("2: View Recently Selected Dishes")
         print("99: Exit\n")
 
         choice = input("Enter your choice: ")
@@ -217,26 +246,35 @@ def interact(user_id):
             recommendations = get_recommendations(user_id)
 
             if recommendations:
-                print("We recommend the following dishes:")
+                print("\nWe recommend the following dishes:")
                 for i, _ in recommendations:
                     print(f"{i}: {dish_names[i]}")
 
-                selection = int(input("\nEnter the number of your selected dish: "))
-                update_data(user_id, selection)
+                #? Ask user to rate the entire list of recommendations
+                combined_rating = get_recommendation_rating()
 
-                print("Your selection has been saved. Enjoy your meal!")
+                #? Update ratings based on the combined score for all recommended dishes
+                for i, _ in recommendations:
+                    update_data(user_id, i, combined_rating)
+
+                #? Ask user to select a dish from the recommendations
+                selected_dish = select_from_recommendations(user_id, recommendations)
+                if selected_dish is not None:
+                    update_data(user_id, selected_dish, combined_rating)
+
+                print("\nYour feedback has been recorded. Enjoy your meal!")
             else:
                 print("No suitable recommendations found. Try again with different ingredients or meal time.")
-        elif choice == "2":
-            print("Please enter the number of the dish you want to select:")
-            for i, dish in enumerate(dish_names):
-                print(f"{i}: {dish}")
+        # elif choice == "2":
+        #     print("Please enter the number of the dish you want to select:")
+        #     for i, dish in enumerate(dish_names):
+        #         print(f"{i}: {dish}")
 
-            selection = int(input("\nEnter the number of your selected dish: "))
-            update_data(user_id, selection)
+        #     selection = int(input("\nEnter the number of your selected dish: "))
+        #     update_data(user_id, selection)
 
             print("Your selection has been saved. Enjoy your meal!")
-        elif choice == "3":
+        elif choice == "2":
             print("Your recently selected dishes are:")
             for dish_id in recently_selected.get(user_id, []):
                 print(dish_names[dish_id])
