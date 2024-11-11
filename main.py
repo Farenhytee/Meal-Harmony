@@ -25,7 +25,7 @@ meal_time_columns = inventory_df.columns[-4:].tolist()
 
 ingredients = inventory_df[ingredient_columns].values
 meal_times = inventory_df[meal_time_columns].values
-
+ 
 #! Dictionary to track recently selected dishes for each user
 recently_selected = {}
 
