@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.inputmethod.InsertGesture;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.google.android.material.card.MaterialCardView;
 
@@ -23,8 +24,9 @@ public class EnterIngredients extends AppCompatActivity {
 
     MaterialCardView selectIngredients;
     Button addIngredients;
-    ArrayList<Integer> ingredientsInt;
-    ArrayList<String> ingredients;
+    TextView tvIngre;
+    ArrayList<Integer> ingredientsInt = new ArrayList<>();
+    ArrayList<String> ingredients = new ArrayList<>();
     String[] ingredientList = {"Cabbage", "Onions", "Tomatoes", "Cauliflower", "Bhindi", "Potatoes", "Rajma",
             "Paneer", "Chole", "Baingan", "Shimla Mirch", "Sev", "Carrots", "Beans", "Peas", "Lentils", "Green Chilies",
             "Coriander Leaves", "Fenugreek leaves", "Rava", "Poha", "Besan", "Rice", "Urad Dal", "Spinach", "Lauki",
@@ -38,11 +40,19 @@ public class EnterIngredients extends AppCompatActivity {
 
         selectIngredients = findViewById(R.id.mcv_ingredients);
         addIngredients = findViewById(R.id.but_add_ingredients);
+        tvIngre = findViewById(R.id.tv_ingredients);
 
         selectIngredients.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 showIngredientsDialog();
+            }
+        });
+
+        addIngredients.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                tvIngre.setText(ingredients.toString());
             }
         });
 
@@ -61,22 +71,15 @@ public class EnterIngredients extends AppCompatActivity {
                 if (isChecked) {
                     ingredientsInt.add(which);
                 } else {
-                    ingredientsInt.remove(which);
+                    ingredientsInt.remove(which-1);
                 }
             }
         }).setPositiveButton("Okay", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
+                ingredients.clear();
                 for (int i = 0; i<ingredientsInt.size(); i++) {
                     ingredients.add(ingredientList[ingredientsInt.get(i)]);
-
-                    String s = "";
-
-                    for (int j = 0; j<ingredients.size(); j++) {
-                        s += ingredients.get(j) + " ";
-                    }
-
-                    Log.d("Ingredients: ", s);
                 }
             }
         }).setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -94,9 +97,6 @@ public class EnterIngredients extends AppCompatActivity {
                 ingredientsInt.clear();
             }
         });
-
-
-
         builder.show();
     }
 }
